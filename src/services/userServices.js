@@ -2,6 +2,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const db = require('../models');
 const redis = require('redis');
+const dotenv = require('dotenv');
+dotenv.config();
 
 
 const newUserHandler = async (username, password) => {
@@ -79,6 +81,8 @@ const userLoginHandler = async (password, username) => {
                 message: 'Password is incorrect'
             };
         }
+        const token = jwt.sign({username}, process.env.JWT_SECRET, {expiresIn: '1h'});
+        redisClient.set(token, 1, 'EX', 3600);
         return {status: 200, message: 'User logged in successfully'};
     } catch (error) {
         return {
@@ -88,7 +92,57 @@ const userLoginHandler = async (password, username) => {
     }
 };
 
-const validateTokenHandler = async () => {
+const validateTokenHandler = async (token) => {
+    if(!token) {
+        return {
+            status: 400,
+            message: 'Token is required'
+        };
+    }
+    try{
+        const decode = await jwt.verify(token, process.env.JWT_SECRET);
+        const username = decode.username;
+        const user = await db.User.findOne({
+            where: {
+                username
+            }});
+        if(!user) {
+            return {
+                status: 400,
+                message: 'Un authorized user'
+            };
+        }
+        const redisUserToken = redisClient.get(token, (err, reply) => {
+            if(err) {
+                return {
+                    status: 500,
+                    message: 'Something went wrong'
+                };
+            }
+            if(reply === null) {
+                return {
+                    status: 401,
+                    message: 'Token is invalid'
+                };
+            }
+        });
+        if(redisUserToken === token) {
+            return {
+                status: 200,
+                message: 'Token is valid'
+            };
+        }else {
+            return {
+                status: 401,
+                message: 'Token is invalid'
+            };
+        }
+    } catch (error) {
+        return {
+            status: 500,
+            message: 'Something went wrong'
+        };
+    }
 };
 
 module.exports = {
