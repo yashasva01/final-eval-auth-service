@@ -17,8 +17,8 @@ const tokenHeaderSchema = Joi.object({
   .min(1);
 
 const validate = (schema, data) => (req, res, next) => {
-  if (data === 'headers') {
-    const object = { authorization: req.headers['authorization'] };
+  if (req.headers['x-access-token']) {
+    const object = { authorization: req.headers['x-access-token'] };
 
     const { error } = schema.validate(object);
     if (error) {
