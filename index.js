@@ -1,5 +1,5 @@
 const express = require('express');
-const router = express.Router();
+const router = require('./src/routes/routes');
 const app = express();
 const dotenv = require('dotenv');
 const redis = require('redis');

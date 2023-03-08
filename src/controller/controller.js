@@ -2,8 +2,8 @@ const userServices = require('../services/userServices');
 
 const registerNewUsers = async(req, res) => {
     const {username, password} = req.body; 
-    const {status, message} = await userServices.newUserHandler(username, password);
-    res.json(message).status(status);
+    const response = await userServices.newUserHandler(username, password);
+    res.json(response.message).status(response.status);
 };
 
 const loginUsers = async(req, res) => {
@@ -13,7 +13,8 @@ const loginUsers = async(req, res) => {
 };
 
 const validateToken = async (req, res) => {
-    const token = req.headers('x-access-token');
+    const token = req.headers['x-access-token'];
+    console.log(token);
     const {status, message} = await userServices.validateTokenHandler(token);
     res.json(message).status(status);
 };  
