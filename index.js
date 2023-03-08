@@ -13,6 +13,22 @@ app.get('/', (req, res) => {
 }
 );
 
+const config = {
+    socket:{
+        host: process.env.REDIS_HOST,
+        port: process.env.REDIS_PORT,
+    },
+};
+global.redisClient = redis.createClient(config);
+
+redisClient
+.on('error', (err) => {
+    console.log(`Redis error: ${err}`);
+})
+.connect().then(()=> {
+    console.log('Redis connected');
+});
+
 app.use('/api', router);
 
 app.listen(process.env.PORT, () => {
