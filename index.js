@@ -3,10 +3,15 @@ const router = require('./src/routes/routes');
 const app = express();
 const dotenv = require('dotenv');
 const redis = require('redis');
+const cors = require('cors');
 dotenv.config();
 
 
 app.use(express.json());
+
+app.use(cors({
+    origin: ['react app url']
+}));
 
 app.get('/', (req, res) => {
     res.send('This is user auth service');

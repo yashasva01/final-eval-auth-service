@@ -108,10 +108,13 @@ const validateTokenHandler = async (token) => {
             };
         }
         const redisUserToken = await redisClient.get(token);
-        if(redisUserToken == 1) {
+        if(Number(redisUserToken) === 1) {
             return {
                 status: 200,
-                message: 'Token is valid'
+                message :{
+                message: 'Token is valid',
+                decoded: decode
+                }
             };
         }else {
             return {
