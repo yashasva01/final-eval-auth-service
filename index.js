@@ -10,7 +10,7 @@ dotenv.config();
 app.use(express.json());
 
 app.use(cors({
-    origin: ['react app url']
+    origin: ['http://localhost:3000']
 }));
 
 app.get('/', (req, res) => {

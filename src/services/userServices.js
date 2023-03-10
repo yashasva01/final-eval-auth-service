@@ -6,8 +6,8 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 
-const newUserHandler = async (username, password) => {
-    if(!username && !password) {
+const newUserHandler = async (userEmail, password) => {
+    if(!userEmail && !password) {
         return {
             status: 400,
             message: 'Username and password are required'
@@ -15,12 +15,14 @@ const newUserHandler = async (username, password) => {
     }
     try{
 
-        const hash = bcrypt.hash(password, 10)
+        const hash = await bcrypt.hash(password, 10)
+  
             const user = await db.User.findOne({
                 where: {
-                    username
+                    userEmail
                 }
             });
+         
             if(user) {
                 return {
                     status: 400,
@@ -28,7 +30,7 @@ const newUserHandler = async (username, password) => {
                 }
             }
             const newUser = await db.User.create({
-                username,
+                userEmail: userEmail,
                 password: hash
             })
             return { status: 200, message: 'User created successfully' } 
@@ -40,8 +42,8 @@ const newUserHandler = async (username, password) => {
     }
 };
 
-const userLoginHandler = async (password, username) => {
-    if(!username && !password) {
+const userLoginHandler = async (userEmail, password) => {
+    if(!userEmail && !password) {
         return {
             status: 400,
             message: 'Username and password are required'
@@ -50,7 +52,7 @@ const userLoginHandler = async (password, username) => {
     try{
         const user = await db.User.findOne({
             where: {
-                username
+                userEmail
             }
         });
         if(!user) {
@@ -75,7 +77,7 @@ const userLoginHandler = async (password, username) => {
                 message: 'Password is incorrect'
             };
         }
-        const token = await jwt.sign({username}, process.env.JWT_SECRET, {expiresIn: '1h'});
+        const token = await jwt.sign({userEmail}, process.env.JWT_SECRET, {expiresIn: '1h'});
         const rc = redisClient;
         const redisToken = await rc.set(token, 1, 'EX', 3600);
         return {status: 200, message: {message: 'User logged in successfully', token: token}};
@@ -96,10 +98,10 @@ const validateTokenHandler = async (token) => {
     }
     try{
         const decode = await jwt.verify(token, process.env.JWT_SECRET);
-        const username = decode.username;
+        const userEmail = decode.userEmail;
         const user = await db.User.findOne({
             where: {
-                username
+                userEmail
             }});
         if(!user) {
             return {

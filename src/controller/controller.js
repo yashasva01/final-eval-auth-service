@@ -1,14 +1,14 @@
 const userServices = require('../services/userServices');
 
 const registerNewUsers = async(req, res) => {
-    const {username, password} = req.body; 
-    const response = await userServices.newUserHandler(username, password);
+    const {userEmail, password} = req.body; 
+    const response = await userServices.newUserHandler(userEmail, password);
     res.json(response.message).status(response.status);
 };
 
 const loginUsers = async(req, res) => {
-    const {username, password} = req.body;
-    const {status, message} = await userServices.userLoginHandler(username, password);
+    const {userEmail, password} = req.body;
+    const {status, message} = await userServices.userLoginHandler(userEmail, password);
     res.json(message).status(status);
 };
 
